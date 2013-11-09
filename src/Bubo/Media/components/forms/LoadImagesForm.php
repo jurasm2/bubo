@@ -26,7 +26,7 @@ class LoadImagesForm extends BaseForm {
         $this->onSuccess[] = array($this, 'formSubmited');
 
 
-        $this->getElementPrototype()->class = 'ajax mfu';
+        $this->getElementPrototype()->class = 'mfu';
 
         $this['send']->getControlPrototype()->class = "submit";
     }
