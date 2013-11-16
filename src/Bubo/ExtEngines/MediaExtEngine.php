@@ -42,7 +42,8 @@ class MediaExtEngine extends BaseExtEngine {
                     $retValue = $jsonData['mediaId'];
                     
                     if ($args !== NULL) {
-                        $code = "{control ".$args[0]." '".$retValue."', \$_page, '".$extensionConfig['mode']."'}";
+                        $galleryTemplateComponent = isset($args[0]) ? $args[0] : 'defaultGallery';
+                        $code = "{control ".$galleryTemplateComponent." '".$retValue."', \$_page, '".$extensionConfig['mode']."'}";
                         $retValue = $this->page->avelanche($code);
                     }
 
