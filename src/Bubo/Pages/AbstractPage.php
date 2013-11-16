@@ -134,6 +134,7 @@ abstract class AbstractPage extends Control implements IResource {
                          break;
 
                      default:
+
                          if (isset($this->entityConfig['properties'][$nameWithoutPrefix]['engine'])) {
                              $retValue = $this->presenter->extManagerService->getExt($this, $nameWithoutPrefix, $args);
                          } else {
