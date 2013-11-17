@@ -54,9 +54,7 @@ abstract class PageMenu extends Control {
         return $this->lang;
     }
 
-    public function getTraverser() {
-        return NULL;
-    }
+    abstract public function getTraverser();
 
     public function getRenderer() {
         return $this->renderer;
