@@ -3,17 +3,15 @@
 namespace Bubo\Navigation;
 
 use Bubo\Application\UI\Control;
-
+use Bubo\Profiler\MenuProfiler\MenuProfiler;
 use Nette\Caching\Cache;
 
 abstract class PageMenu extends Control {
 
     private $renderer;
     private $labelName;
-
     private $parentPage;    //??
     private $lang;
-
     private $cacheTags;
     private $cachingEnabled;
 
@@ -84,26 +82,15 @@ abstract class PageMenu extends Control {
      * @param type $useCurrentPageAsLabelRoot
      * @param type $ignorePage
      */
-    public function render($page = NULL, $useCurrentPageAsLabelRoot = FALSE, $ignorePage = FALSE) {
+    public function render($page = NULL, $useCurrentPageAsLabelRoot = FALSE, $ignorePage = FALSE)
+    {
 
-        //\SimpleProfiler\Profiler::advancedTimer();
+        MenuProfiler::advancedTimer($this->reflection->shortName, 'page_menu_render');
 
         $this->parentPage = $page;
 
         $traverser = $this->getTraverser();
-        //$traverser->preprareRoots();
-
-        $doCaching = FALSE;
-
-
-
-
-        if (isset($this->presenter->page)) {
-            $doCaching = TRUE;
-        }
-
-        $doCaching = $doCaching && $this->cachingEnabled;
-
+        $doCaching = (isset($this->presenter->page) ? TRUE : FALSE )&& $this->cachingEnabled;
 
         $cacheKey = NULL;
 
@@ -124,27 +111,22 @@ abstract class PageMenu extends Control {
         if ($val === NULL) {
 
             $val = $traverser ? $traverser->setRenderer($this->setUpRenderer($this->renderer))
-                                            ->setUpSpecifiedRoot($page, $useCurrentPageAsLabelRoot, $ignorePage)
-                                            ->traverse() : '';
-
+                            ->setUpSpecifiedRoot($page, $useCurrentPageAsLabelRoot, $ignorePage)
+                            ->traverse() : '';
 
             if ($doCaching) {
-                $this->cacheTags[] = 'labels/'.$traverser->label['nicename'];
+                $this->cacheTags[] = 'labels/' . $traverser->label['nicename'];
 
                 $dp = array(
-                        Cache::TAGS => $this->cacheTags
+                    Cache::TAGS => $this->cacheTags
                 );
 
                 $cache->save($cacheKey, $val->__toString(), $dp);
             }
-         }
+        }
 
         echo $val;
-
-
-        //\SimpleProfiler\Profiler::advancedTimer($this->reflection->shortName);
-
-
+        MenuProfiler::advancedTimer($this->reflection->shortName, 'page_menu_render');
     }
 
 }
