@@ -83,9 +83,6 @@ abstract class AbstractPage extends Control implements IResource {
     public function __call_or_get($name, $args, $matches) {
         $filter = FALSE;
 
-        //dump($this->lookup('Nette\\Application\\UI\\Presenter', FALSE));
-        //die();
-
         $p = $this->lookup('Nette\\Application\\UI\\Presenter', FALSE);
         if ($p !== NULL) {
             $this->entityConfig = $this->presenter->configLoaderService->loadEntityConfig($this->data['entity']);
@@ -101,8 +98,6 @@ abstract class AbstractPage extends Control implements IResource {
 
              $filter = TRUE;
          }
-    //            dump($nameWithoutPrefix, $filter);
-    //            die();
 
          $retValue = NULL;
 
@@ -550,49 +545,23 @@ abstract class AbstractPage extends Control implements IResource {
      * @param type $allPageVersions
      */
     public function save($presenter, $allPageVersions = NULL, $allAlienUrls = NULL) {
-
-//        dump($this->_lang);
-//
-//        \Nette\Diagnostics\Debugger::$maxDepth = 6;
-//        dump($allAlienUrls);
-//        die();
-
-//        dump($this->_entity);
-//        die();
-
         $entityConfig = $presenter->configLoaderService->loadEntityConfig($this->data['entity']);
 
         $queryBuilder = new \Model\QueryBuilders\EntityQueryBuilder($this->context);
         $insertData = $queryBuilder->getPageInserts($entityConfig, $this->getData());
 
         $currentTimeZone = $this->_getCurrentTimeZone();
-
-        //$currentTimeZone = 0;
-
-//        dump($currentTimeZone);
-//        die();
-
         $pageId = NULL;
 
         if ($allPageVersions !== NULL) {
             // EDITING treeNodeId
-
-//
-//
             // based on $currentTimeZone and $this->_status
             $pageIdsToDelete = $this->_getPageIdsToDelete($currentTimeZone, $this->_status, $allPageVersions);
-
-
-//            dump($insertData);
-//            die();
 
             $pageId = $presenter->pageModel->savePage($insertData);
 
             // post process data
             $this->_convertPdfs($insertData, $queryBuilder, $presenter);
-
-//            dump('die');
-//            die();
 
             // fire delete signal
             $presenter->pageManagerService->onDelete($pageId, $pageIdsToDelete);
@@ -616,11 +585,6 @@ abstract class AbstractPage extends Control implements IResource {
 
             $this->_convertPdfs($insertData, $queryBuilder, $presenter);
         }
-
-//        dump($entityConfig);
-//        die();
-//        dump('tu');
-//        die();
 
         if (isset($entityConfig['entityMeta']) && isset($entityConfig['entityMeta']['createUrl']) && $entityConfig['entityMeta']['createUrl']) {
 
@@ -656,12 +620,6 @@ abstract class AbstractPage extends Control implements IResource {
 
 
                 $presenter->pageModel->insertUrls($urls);
-    //            if ($this->_lang == 'pl') {
-    //
-    //            dump($urls);
-    //            die();
-    //            }
-
             } else {
                 // page is a common page
                 $_url = $this->_parent_url. '/' . Strings::webalize($this->_url_name);
@@ -699,65 +657,34 @@ abstract class AbstractPage extends Control implements IResource {
             $labelProperties = $presenter->pageManagerService->intersectLabelProperties($labelId, $allExtensions);
         }
 
-
-//        foreach (array_merge((array)$entityConfig['properties'], (array) $labelProperties) as $propertyName => $property) {
-//
-//            if (isset($property['engine']) && ($property['engine'] == 'drive')) {
-//
-//                $varName = '_'.$propertyName;
-//
-//                    switch ($property['storage']) {
-//                        case 'gallery':
-//                            // if no image provided create empty gallery
-//                            $id = $presenter->virtualDriveService->addGallery($this->$varName, $this->_name, NULL, $property);
-////                            dump('tu su', $id);
-////                            die();
-//                            $presenter->virtualDriveService->attachGalleryToPage($pageId, $id, $propertyName);
-//                            break;
-//                        case 'file':
-//                            if (count($this->$varName) > 0) {
-//                                if($this->$varName->isOk()){
-//                                    $presenter->virtualDriveService->setStorage('file');
-//                                    $presenter->virtualDriveService->setDrivePath($property['path']);
-//                                    $id = $presenter->virtualDriveService->addFile($this->$varName);
-//                                    $presenter->virtualDriveService->attachFileToPage($pageId, $id, $propertyName);
-//                                }
-//                            }
-//                            break;
-//                    }
-//
-//
-//            }
-//
-//        }
-
-
-
         /**
          * INVALIDATE CACHE
          */
         $assignedLabels = $presenter->labelModel->getAllLabelsAssignedToPage($this->treeNodeId);
-        $menus = array();
+        $this->invalidatePageMenus($assignedLabels, $presenter);
 
-        // invalidate cache
-        if (!empty($assignedLabels)) {
-            foreach ($assignedLabels as $k => $v) {
-                $menus[] = 'labels/'.$k;
-            }
-        }
-
-        $presenter->cacheStorageService->clean(array(
-            Nette\Caching\Cache::TAGS => $menus)
-        );
-
-//        $presenter->cacheStorageService->clean(array(
-//            Nette\Caching\Cache::TAGS => array('labels/novinky'))
-//        );
-
+        // invalidate contents
         $presenter->cacheStorageService->clean(array(
             Nette\Caching\Cache::TAGS => array('contents/'.$this->treeNodeId))
         );
 
+    }
+
+    protected function invalidatePageMenus($labels, $presenter = NULL) {
+        $menus = array();
+
+        // invalidate cache
+        if (!empty($labels)) {
+            foreach ((array) $labels as $label) {
+                $menus[] = 'labels/'.$label['nicename'];
+            }
+        }
+
+        $p = $presenter ?: $this->presenter;
+
+        $p->cacheStorageService->clean(array(
+            Nette\Caching\Cache::TAGS => $menus)
+        );
     }
 
 
@@ -809,10 +736,6 @@ abstract class AbstractPage extends Control implements IResource {
             // connected parent is needed
 
             $row = $presenter->pageModel->loadParent($parentTreeNodeId);
-
-//            dump($row);
-//            die();
-
             $parent = new CMSPage($this->context, $parentTreeNodeId);
             $parent->setAsBubbleLoaded();
 
@@ -1049,8 +972,6 @@ abstract class AbstractPage extends Control implements IResource {
             );
 
         }
-//        dump($data);
-//        die();
         $returnValue = NULL;
 
         switch ($operation) {
@@ -1063,6 +984,8 @@ abstract class AbstractPage extends Control implements IResource {
                 break;
         }
 
+        $labels = array($label);
+        $this->invalidatePageMenus($labels);
         return $returnValue;
     }
 
@@ -1094,16 +1017,6 @@ abstract class AbstractPage extends Control implements IResource {
             }
         }
         return FALSE;
-    }
-
-    public function paintGallery($galleryHtml, $galleryLayout) {
-        $filterParams = array(
-                            'gallery'   =>  array(
-                                                'layout'    =>  $galleryLayout
-                            )
-        );
-
-        return $this->_avelancheTransform($galleryHtml, $filterParams);
     }
 
     public function avelanche($text, $params = NULL) {
