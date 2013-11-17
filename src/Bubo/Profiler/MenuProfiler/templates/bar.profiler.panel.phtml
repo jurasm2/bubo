@@ -8,22 +8,17 @@
 </style>
 
 
-<h1>Simple Profiler</h1>
+<h1>Menu profiler</h1>
 
 <div class="nette-inner nette-SimpleProfilePanel">
     <?php
-    echo $list = \Bubo\Profiler\MenuProfiler\MenuProfiler::paintCharts();
+    $charts = \Bubo\Profiler\MenuProfiler\MenuProfiler::paintCharts();
 
-    if(is_array($list)):
-        foreach($list as $image):
-            if(file_exists($image)):
-        ?>
-
-        <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents($image));?>" alt="" />
-
-
+    if (is_array($charts)): ?>
+        <?php foreach ($charts as $image): ?>
+            <?php if (file_exists($image)): ?>
+               <img src="data:image/png;base64,<?php echo base64_encode(file_get_contents($image));?>" alt="" />
             <?php endif; ?>
         <?php endforeach; ?>
     <?php endif; ?>
-
 </div>
