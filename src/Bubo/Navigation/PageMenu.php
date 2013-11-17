@@ -88,7 +88,7 @@ abstract class PageMenu extends Control {
      */
     public function render($page = NULL, $useCurrentPageAsLabelRoot = FALSE, $ignorePage = FALSE) {
 
-        //\SimpleProfiler\Profiler::advancedTimer();
+        //\Bubo\Profiler\MenuProfiler\MenuProfiler::advancedTimer();
 
         $this->parentPage = $page;
 
@@ -144,8 +144,7 @@ abstract class PageMenu extends Control {
         echo $val;
 
 
-        //\SimpleProfiler\Profiler::advancedTimer($this->reflection->shortName);
-
+         //\Bubo\Profiler\MenuProfiler\MenuProfiler::advancedTimer($this->reflection->shortName);
 
     }
 
