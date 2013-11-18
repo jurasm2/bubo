@@ -16,8 +16,29 @@ class MediaFileInput extends Nette\Forms\Controls\TextBase {
         $form = $this->lookup('Nette\\Forms\\Form');
         $control->style = "display:none;";
 
-        $extIdentifier = substr($this->name, 4);
-        $extName = $form->presenter->mediaManagerService->getLabelExtNameByIdentifier($extIdentifier);
+        // resolve: Entity param or label extension?
+        if (Nette\Utils\Strings::startsWith($this->name, 'ext_')) {
+            // this is label extension
+            $extIdentifier = substr($this->name, 4);
+            $extName = $form->presenter->mediaManagerService->getLabelExtNameByIdentifier($extIdentifier);
+        } else {
+            // this is entity param
+            $entity = $form->presenter->getParam('entity');
+            if ($entity === NULL) {
+                // determine entity by $treeNodeId
+                $treeNodeId = $form->presenter->getParam('id');
+                if ($treeNodeId === NULL) {
+                    throw new \Nette\InvalidArgumentException("Unable to determine entity");
+                }
+                $entity = $form->presenter->pageModel->getEntity($treeNodeId);
+            }
+
+            // load page configuration
+            $entityConfig = $form->presenter->configLoaderService->loadEntityConfig($entity);
+            $properties = $entityConfig['properties'];
+            $extName = isset($properties[$this->name]['type']) ? $properties[$this->name]['type'] : null;
+        }
+
 
         $control->value = $this->getValue() === '' ? $this->translate($this->emptyValue) : $this->value;
 
@@ -46,7 +67,6 @@ class MediaFileInput extends Nette\Forms\Controls\TextBase {
             $mediaId = isset($encodedParams['mediaId']) ? $encodedParams['mediaId'] : NULL;
             $restoreUrl = isset($encodedParams['restoreUrl']) ? $encodedParams['restoreUrl'] : NULL;
         }
-
 
         if ($mediaType !== NULL && $mediaId !== NULL) {
 

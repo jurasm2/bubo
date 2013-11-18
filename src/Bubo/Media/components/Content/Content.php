@@ -766,6 +766,7 @@ class Content extends Control
         $section = $this->parent->getCurrentSection();
         $actions = $this->actions ?: 'default';
 
+
         if (isset($actionMap[$section][$actions])) {
 
             $actionList = $this->parseActionList($actionMap[$section][$actions]);
