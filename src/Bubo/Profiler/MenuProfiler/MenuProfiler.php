@@ -60,7 +60,7 @@ final class MenuProfiler {
         if (is_array(self::$timeArray)) {
             // process each label separatelly
             foreach (self::$timeArray as $key => $data) {
-                Debugger::timer('ttest');
+                
                 $totalTime = 0;
                 foreach ($data as $item) {
                     $totalTime += $item;
@@ -69,7 +69,7 @@ final class MenuProfiler {
                 $restTime = abs($restTime - $totalTime);
                 $data[] = $restTime;
 
-                $graph = new \PieGraph(500, 300);
+                $graph = new \PieGraph(630, 300);
 
                 $theme_class = new \VividTheme;
                 $graph->SetTheme($theme_class);
