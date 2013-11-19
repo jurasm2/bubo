@@ -16,7 +16,7 @@ abstract class BaseExtEngine extends Nette\Object {
      * Page
      * @var AbstractPage
      */
-    private $page;
+    protected $page;
 
     /**
      * Constructor
