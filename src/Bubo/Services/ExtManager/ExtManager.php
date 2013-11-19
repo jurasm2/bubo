@@ -102,7 +102,6 @@ class ExtManager extends BaseService {
                 $extensionConfig = $labelExtensionsProperties['properties'][$name];
                 $extEngineName = isset($extensionConfig['engine']) ? $extensionConfig['engine'] : 'default';
                 $engineClassName = 'Bubo\\ExtEngines\\' . ucfirst($extEngineName) . 'ExtEngine';
-
                 if (class_exists($engineClassName)) {
                     $reflect  = new \ReflectionClass($engineClassName);
                     $engine = $reflect->newInstanceArgs(array('page' => $page));

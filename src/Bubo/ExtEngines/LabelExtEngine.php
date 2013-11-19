@@ -30,47 +30,31 @@ class LabelExtEngine extends BaseExtEngine {
     }
 
     /**
-     * Return values for media data types (mediaGallery, mediaFile)
+     * Return page binded through label extension
      * @param string $realName
      * @param array $extensionConfig
      * @param array|null $args
      * @param bool $isEntityParam
-     * @return type
+     * @return AbstractPage|NULL
      */
     public function getExt($realName, array $extensionConfig, $args = NULL, $isEntityParam = FALSE)
     {
         $retValue = NULL;
 
+        // data represents tree node id of the page
         $data = $this->_getData($realName, $isEntityParam);
 
-        if ($data !== NULL) {
-            switch ($extensionConfig['type']) {
-                case 'label':
-                    $jsonData = json_decode($data, TRUE);
-                    $retValue = $jsonData['mediaId'];
-
-                    if ($args !== NULL) {
-                        $galleryTemplateComponent = isset($args[0]) ? $args[0] : 'defaultGallery';
-                        $code = "{control ".$galleryTemplateComponent." '".$retValue."', \$_page, '".$extensionConfig['mode']."'}";
-                        $retValue = $this->page->avelanche($code);
-                    }
-
-                    if ($retValue === NULL && $args !== NULL) {
-                        $retValue = new \Bubo\Media\TemplateContainers\MediaFile(NULL);
-                    }
-                    break;
-                case 'mediaFile':
-                    $jsonData = json_decode($data, TRUE);
-                    $fileId = $jsonData['mediaId'];
-                    $mode = isset($extensionConfig['mode']) ? $extensionConfig['mode'] : NULL;
-                    $retValue = $this->page->presenter->mediaManagerService->loadFile($fileId, $mode);
-                    break;
-                default:
-                    $retValue = $data;
-            }
+        if ($data) {
+            $loadPageParams = array(
+                'treeNodeId' => $data,
+                'lang' => $this->page->presenter->lang ?: $this->page->presenter->langManagerService->getDefaultLanguage(),
+            );
+            $retValue = $this->page->presenter->pageManagerService->getPage($loadPageParams);
+        } else {
+            $retValue = NULL;
         }
-        return $retValue;
 
+        return $retValue;
     }
 
 
