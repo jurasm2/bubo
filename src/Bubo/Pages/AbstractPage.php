@@ -1100,9 +1100,7 @@ abstract class AbstractPage extends Control implements IResource {
 
     public function isHomepage() {
         $labels = $this->_labels;
-
         $homepageLabelId = $this->presenter->pageManagerService->getHomepageLabelId();
-
         $isHomepage = FALSE;
 
         if (!empty($labels) && !empty($homepageLabelId)) {

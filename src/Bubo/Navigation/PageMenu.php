@@ -4,7 +4,9 @@ namespace Bubo\Navigation;
 
 use Bubo\Application\UI\Control;
 use Bubo\Profiler\MenuProfiler\MenuProfiler;
+
 use Nette\Caching\Cache;
+use Nette\Utils\Html;
 
 abstract class PageMenu extends Control {
 
@@ -67,6 +69,15 @@ abstract class PageMenu extends Control {
     }
 
     /**
+     * Decorating function
+     * @param string|Html $html
+     * @return string|Html
+     */
+    public function decorate($html) {
+        return $html;
+    }
+
+    /**
      * Render page menu
      *
      * - $page determines the branch of labeled forest
@@ -113,6 +124,8 @@ abstract class PageMenu extends Control {
             $val = $traverser ? $traverser->setRenderer($this->setUpRenderer($this->renderer))
                             ->setUpSpecifiedRoot($page, $useCurrentPageAsLabelRoot, $ignorePage)
                             ->traverse() : '';
+
+            $val = $this->decorate($val);
 
             if ($doCaching) {
                 $this->cacheTags[] = 'labels/' . $traverser->label['nicename'];
