@@ -88,6 +88,7 @@ abstract class AbstractPage extends Control implements IResource {
             $this->entityConfig = $this->presenter->configLoaderService->loadEntityConfig($this->data['entity']);
         }
 
+        // ?
         $this->context->virtualDrive->setStorage('file');
 
         $nameWithoutPrefix = $matches[1];

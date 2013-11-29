@@ -306,7 +306,6 @@ class MediaManager extends BaseService {
     }
 
     public function loadImages($galleryId, $mode) {
-
         $folder = $this->getFolder($galleryId);
         $galleryContent = $this->getGalleryFolderContent($galleryId);
 
