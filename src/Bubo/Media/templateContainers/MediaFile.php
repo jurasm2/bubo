@@ -2,17 +2,14 @@
 
 namespace Bubo\Media\TemplateContainers;
 
-use Nette;
 use Nette\Utils\Html;
 
 /**
  * Representation of image file in front end template
  */
-class MediaFile extends Nette\Object {
+class MediaFile extends AbstractTemplateContainer {
 
-    private $file;
-
-    private $paths;
+    protected $file;
 
     public function __construct($file)
     {
@@ -29,7 +26,7 @@ class MediaFile extends Nette\Object {
         return $this->paths;
     }
 
-    public function pathExists($index)
+    public function pathExists($index = 0)
     {
         return isset($this->paths['urls'][$index]);
     }
@@ -41,7 +38,7 @@ class MediaFile extends Nette\Object {
         return $img;
     }
 
-    public function getPath($index)
+    public function getPath($index = 0)
     {
         return $this->pathExists($index) ? $this->paths['urls'][$index] : NULL;
     }
@@ -51,4 +48,12 @@ class MediaFile extends Nette\Object {
         return '';
     }
 
+    public function getDirPath($index = 0)
+    {
+        return $this->pathExists($index) ?  $this->paths['dirPaths'][$index] : NULL;
+    }
+
+    public function fileExists() {
+        return $this->file !== FALSE;
+    }
 }
