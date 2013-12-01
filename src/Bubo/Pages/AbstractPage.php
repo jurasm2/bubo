@@ -128,7 +128,6 @@ abstract class AbstractPage extends Control implements IResource {
                              $retValue = "";
                          }
                          break;
-
                      default:
 
                          if (isset($this->entityConfig['properties'][$nameWithoutPrefix]['engine'])) {
@@ -148,18 +147,9 @@ abstract class AbstractPage extends Control implements IResource {
 
                  } else if (Strings::startsWith($nameWithoutPrefix, 'ext_')) {
                      // request for extension
-
-                     //dump($nameWithoutPrefix);
-
                      $retValue = $this->presenter->extManagerService->getExt($this, $nameWithoutPrefix, $args);
-                     //dump($retValue);
-
                  }
-
-
              }
-
-
 
              if ($filter) {
                  $retValue = $this->_avelancheTransform($retValue, $args);

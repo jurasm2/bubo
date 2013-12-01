@@ -40,6 +40,12 @@ class DefaultExtEngine extends BaseExtEngine {
                         $retValue = $key;
                     }
                     break;
+                case 'external_url':
+                    $retValue = $_d['ext_identifier'][$realName]['ext_value'];
+                    if (!(Strings::startsWith($retValue, 'http://') || Strings::startsWith($retValue, 'https://'))) {
+                        $retValue = 'http://' . $retValue;
+                    }
+                    break;
                 case 'textArea':
                     $retValue = $_d['ext_identifier'][$realName]['ext_value'];
 
