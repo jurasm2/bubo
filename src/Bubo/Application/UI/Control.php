@@ -13,7 +13,6 @@ abstract class Control extends NetteControl
         $template = $this->getTemplate();
         $template->setFile($templateFile);
         $template->setTranslator($this->getPresenter()->getTranslator());
-
         return $template;
     }
 
