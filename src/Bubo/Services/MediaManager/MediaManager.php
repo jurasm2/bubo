@@ -334,9 +334,9 @@ class MediaManager extends BaseService {
 
 
     public function loadFile($fileId, $mode = NULL) {
-
+        $p = $this->presenter;
         $file = $this->getFile($fileId);
-        $mediaFile = new Bubo\Media\TemplateContainers\MediaFile($file);
+        $mediaFile = new Bubo\Media\TemplateContainers\MediaFile($file, $p);
 
         $paths = array();
 

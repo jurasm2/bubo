@@ -7,8 +7,6 @@ namespace Bubo\Media\TemplateContainers;
  */
 class MediaImage extends AbstractTemplateContainer {
 
-    public $presenter;
-
     protected $imageData;
 
     public function __construct($imageData, $presenter)
@@ -29,18 +27,7 @@ class MediaImage extends AbstractTemplateContainer {
 
     public function getDescription($name, $lang = NULL)
     {
-        $returnText = NULL;
-
-        $_lang = $lang === NULL ? $this->presenter->getFullLang() : $lang;
-        $description = \Bubo\Utils\MultiValues::unserialize($this->imageData['ext']);
-
-        if ($description) {
-            if (isset($description[$_lang][$name])) {
-                $returnText = $description[$_lang][$name];
-            }
-        }
-
-        return $returnText;
+        return $this->extractDescription($name, $lang, $this->imageData['ext']);
     }
 
     public function getDirPath($index = 0)

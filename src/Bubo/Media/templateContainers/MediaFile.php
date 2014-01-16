@@ -11,9 +11,10 @@ class MediaFile extends AbstractTemplateContainer {
 
     protected $file;
 
-    public function __construct($file)
+    public function __construct($file, $presenter)
     {
         $this->file = $file;
+        $this->presenter = $presenter;
     }
 
     public function setPaths($paths)
@@ -55,5 +56,9 @@ class MediaFile extends AbstractTemplateContainer {
 
     public function fileExists() {
         return $this->file !== FALSE;
+    }
+
+    public function getDescription($name, $lang = NULL) {
+        return $this->extractDescription($name, $lang, $this->file['ext']);
     }
 }
