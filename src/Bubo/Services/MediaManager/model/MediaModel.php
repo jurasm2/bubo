@@ -447,7 +447,7 @@ final class MediaModel extends BaseModel {
     public function getLabelExtNameByIdentifier($identifier) {
         return $this->connection->fetchSingle('SELECT [name] FROM [:core:label_ext_definitions] WHERE [identifier] = %s', $identifier);
     }
-
+    
     public function getFileSection($fileId) {
         $file = $this->getFile($fileId);
 

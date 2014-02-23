@@ -48,7 +48,8 @@ class Media extends Control
     public $trigger = 'tiny';
 
     /**
-     * Extension name
+     * Extension type
+     * This variable needs to be renamed to $extType!!
      * @var string
      * @persistent
      */

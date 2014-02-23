@@ -3,6 +3,7 @@
 namespace Bubo;
 
 use Nette;
+use Nette\Utils\Strings;
 
 class MediaFileInput extends Nette\Forms\Controls\TextBase {
 
@@ -20,7 +21,13 @@ class MediaFileInput extends Nette\Forms\Controls\TextBase {
         if (Nette\Utils\Strings::startsWith($this->name, 'ext_')) {
             // this is label extension
             $extIdentifier = substr($this->name, 4);
+
             $extName = $form->presenter->mediaManagerService->getLabelExtNameByIdentifier($extIdentifier);
+            if (Strings::startsWith($extName, 'mediaFile')) {
+                $extName = 'mediaFile';
+            } else if (Strings::startsWith($extName, 'mediaGallery')) {
+                $extName = 'mediaGallery';
+            }
         } else {
             // this is entity param
             $entity = $form->presenter->getParam('entity');
