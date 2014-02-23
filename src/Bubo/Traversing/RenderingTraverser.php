@@ -225,24 +225,49 @@ abstract class RenderingTraverser extends Traverser {
      *
      * Use $node as root.
      */
-    public function recursiveDFSRender($node, $getDescendantsParams, $renderer, $currentContainer, $level, $horizontalLevel) {
+    public function recursiveDFSRender(
+        $node,
+        $getDescendantsParams,
+        $renderer,
+        $currentContainer,
+        $level,
+        $horizontalLevel,
+        $numOfDescentants
+    ) {
 
         // create new menu item
         $menuItemContainer = $level == 1 ? $renderer->createTopLevelItemContainer() : $renderer->createInnerLevelItemContainer();
 
-        $menuItemContainer = $renderer->renderMenuItem($node, $getDescendantsParams, $menuItemContainer, $level, $horizontalLevel, $this->isPageHightlighted($node->treeNodeId));
+        $menuItemContainer = $renderer->renderMenuItem(
+            $node,
+            $getDescendantsParams,
+            $menuItemContainer,
+            $level,
+            $horizontalLevel,
+            $this->isPageHightlighted($node->treeNodeId),
+            $numOfDescentants
+        );
         $currentContainer->add($menuItemContainer);
 
         if (!$this->getGoThroughActive()) {
 
             $descendants = $node->getDescendants($getDescendantsParams);
-            if (count($descendants) > 0) {
+            $numOfDescentants = count($descendants);
+            if ($numOfDescentants > 0) {
 
                 $newMenuContainer = $renderer->createInnerLevelContainer();
                 $furtherLevel = $level + 1;
                 $_horizontalLevel = 1;
                 foreach ($descendants as $descendant) {
-                    $newMenuContainer = $this->recursiveDFSRender($descendant, $getDescendantsParams, $renderer, $newMenuContainer, $furtherLevel, $_horizontalLevel++);
+                    $newMenuContainer = $this->recursiveDFSRender(
+                        $descendant,
+                        $getDescendantsParams,
+                        $renderer,
+                        $newMenuContainer,
+                        $furtherLevel,
+                        $_horizontalLevel++,
+                        $numOfDescentants
+                    );
                 }
                 $menuItemContainer->add($newMenuContainer);
 
@@ -253,7 +278,15 @@ abstract class RenderingTraverser extends Traverser {
 
 
 
-    public function BFSRender($node, $getDescendantsParams, $renderer, $currentContainer, $level, $horizontalLevel) {
+    public function BFSRender(
+        $node,
+        $getDescendantsParams,
+        $renderer,
+        $currentContainer,
+        $level,
+        $horizontalLevel,
+        $numOfDescentants
+    ) {
 
         $headingContainer = NULL;
 

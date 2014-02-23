@@ -269,14 +269,29 @@ final class LabelTraverser extends Traversing\RenderingTraverser {
 
                 if ($this->getSkipLevel() == 1) {
                     $descendants = $root->getDescendants($descendantsParams);
-
-                    if (count($descendants) > 0) {
+                    $numOfDescendants = count($descendants);
+                    if ($numOfDescendants > 0) {
                         foreach ($descendants as $descendant) {
-                            $topLevelContainer = $callback->invoke($descendant, $descendantsParams, $this->getRenderer(), $topLevelContainer, 1, $horizontalLevel++);
+                            $topLevelContainer = $callback->invoke(
+                                $descendant,
+                                $descendantsParams,
+                                $this->getRenderer(),
+                                $topLevelContainer,
+                                1,
+                                $horizontalLevel++,
+                                $numOfDescendants
+                            );
                         }
                     }
                 } else {
-                    $topLevelContainer = $callback->invoke($root, $descendantsParams, $this->getRenderer(), $topLevelContainer, 1, $horizontalLevel++);
+                    $topLevelContainer = $callback->invoke(
+                        $root,
+                        $descendantsParams,
+                        $this->getRenderer(),
+                        $topLevelContainer,
+                        1,
+                        $horizontalLevel++,
+                        1);
                 }
 
             }
