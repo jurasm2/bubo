@@ -2,7 +2,7 @@
 
 namespace Bubo\Profiler\MenuProfiler;
 
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 
 use JpGraph\JpGraph;
 
@@ -31,7 +31,7 @@ final class MenuProfiler {
         if (!self::$isRegistered) {
             if (self::$barDump) {
                 $debugBar = new DebugBarExtension();
-                Debugger::$bar->addPanel($debugBar, 0);
+                Debugger::getBar()->addPanel($debugBar, 0);
             }
             self::$isRegistered = TRUE;
         }

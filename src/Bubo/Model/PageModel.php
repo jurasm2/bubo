@@ -1200,13 +1200,8 @@ final class PageModel extends BaseModel {
 
             // delete from cms_pages_labels
             $this->connection->query('DELETE FROM [:core:pages_labels] WHERE [tree_node_id] IN %in', $treeNodeIds);
-
-            // delete from cms_vd_pages_files
-            $this->connection->query('DELETE FROM [:core:vd_pages_files] WHERE [page_id] IN %in', $pageIds);
-
-            //dump($pageIds);
         }
-//        die();
+
     }
 
 

@@ -5,6 +5,7 @@ namespace Bubo\Security;
 use Nette;
 use Nette\Security as NS;
 
+use Bubo\Database\Connection;
 use DibiConnection;
 
 /**
@@ -27,9 +28,9 @@ class Authenticator extends Nette\Object implements NS\IAuthenticator
 
     /**
      * Constructor
-     * @param DibiConnection $connection
+     * @param Connection $connection
      */
-    public function __construct(DibiConnection $connection)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }

@@ -18,7 +18,7 @@ class SessionManager extends Control {
     }
 
     public function getSessionSection() {
-        $session = $this->presenter->context->session;
+        $session = $this->presenter->context->getService('session');
         return $session->getSection(self::MEDIA_SESSION_NAMESPACE . '-' . $this->sessionSectionName);
     }
 

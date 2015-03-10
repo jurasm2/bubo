@@ -50,11 +50,7 @@ final class PageManager extends BaseService {
     public function loadAllPages($params) {
         $params['presenter'] = $this->presenter;
         if (!$this->loaded && $this->getPageLoadingMode() == 'eager') {
-
             $modulesConfig = $this->presenter->configLoaderService->loadModulesConfig($this->getCurrentModule());
-
-//            dump($modulesConfig);
-//            die();
 
             if (isset($modulesConfig['modules'])) {
                 foreach ($modulesConfig['modules'] as $moduleName => $module) {

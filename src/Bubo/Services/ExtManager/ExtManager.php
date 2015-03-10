@@ -72,6 +72,7 @@ class ExtManager extends BaseService {
      */
     public function getExt(AbstractPage $page, $nameWithoutPrefix, $args = NULL)
     {
+
         $retValue = NULL;
 
         // label extensions

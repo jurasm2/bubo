@@ -21,7 +21,7 @@ final class EntityQueryBuilder extends Nette\Object {
     
     public function __construct($context) {
         $this->context = $context;
-        $this->connection = $context->database;
+        $this->connection = $context->getService('database');
     }
     
     public function getExtValuesDbTable() {
@@ -160,7 +160,7 @@ final class EntityQueryBuilder extends Nette\Object {
         $tables = array();
         
         // add mandatory parameters (mandatories)
-        $mandatories = $this->context->configLoader->loadMandatoryProperties();
+        $mandatories = $this->context->getService('configLoader')->loadMandatoryProperties();
         if (!empty($mandatories)) {
             foreach ($mandatories as $name => $junk) {
                 $attributes[] = $this->defaultDbTable.'.['.$name.']';
@@ -208,7 +208,7 @@ final class EntityQueryBuilder extends Nette\Object {
      */
     public function getPageInserts($entityConfig, $currentPageData) {
         
-        $mandatories = $this->context->configLoader->loadMandatoryProperties();        
+        $mandatories = $this->context->getService('configLoader')->loadMandatoryProperties();
         // by default 
         $allProperties = array_merge($mandatories, $entityConfig['properties']);        
         $tableMapping = $this->_extractTableMapping($allProperties);

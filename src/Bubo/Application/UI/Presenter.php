@@ -3,10 +3,10 @@ namespace Bubo\Application\UI;
 
 use Bubo\Localization\TranslatorAwareInterface;
 
+use Kdyby;
+use Bubo;
 use Nette\Application\UI\Presenter as NettePresenter;
 use Nette\ComponentModel\IComponent;
-
-use GettextTranslator;
 
 /**
  * Parent of all presenters in Bubo application.
@@ -23,26 +23,8 @@ class Presenter extends NettePresenter
     protected $nativeControlMap = array();
 
 
-    /** @var GettextTranslator\Gettext */
-    protected $translator;
-
-
-    /**
-     * Injects translator
-     * @param GettextTranslator\Gettext
-     */
-    public function injectTranslator(GettextTranslator\Gettext $translator)
-    {
-        $this->translator = $translator;
-    }
-
-    /**
-     *
-     * @return GettextTranslator\Gettext
-     */
-    public function getTranslator() {
-        return $this->translator;
-    }
+	/** @var Kdyby\Translation\Translator @inject */
+	public $translator;
 
     /**
      * Customized template factory (utilizing injected Gettext translator)
@@ -52,7 +34,6 @@ class Presenter extends NettePresenter
     public function createTemplate($class = NULL)
     {
         $template = parent::createTemplate($class);
-        $this->translator->setLang($this->getFullLang());
         $template->setTranslator($this->translator);
         return $template;
     }
@@ -73,7 +54,7 @@ class Presenter extends NettePresenter
                         // TODO check signature of constructor
                         $component = new $className($this, $name);
                         if ($component instanceof TranslatorAwareInterface) {
-                            $component->setTranslator($this->context->translator);
+                            $component->setTranslator($this->translator);
                         }
                         return $component;
                     }

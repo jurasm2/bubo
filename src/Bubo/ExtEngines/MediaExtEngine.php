@@ -6,7 +6,8 @@ namespace Bubo\ExtEngines;
  * Ext engine resposible for media types retireval
  * @author Marek Juras
  */
-class MediaExtEngine extends BaseExtEngine {
+class MediaExtEngine extends BaseExtEngine
+{
 
     /**
      *
@@ -56,7 +57,7 @@ class MediaExtEngine extends BaseExtEngine {
                     }
 
                     if ($retValue === NULL && $args !== NULL) {
-                        $retValue = new \Bubo\Media\TemplateContainers\MediaFile(NULL);
+                        $retValue = new \Bubo\Media\TemplateContainers\MediaFile(NULL, $this->page->presenter);
                     }
                     break;
                 case 'mediaFile':
