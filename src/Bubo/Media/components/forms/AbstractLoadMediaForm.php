@@ -2,10 +2,9 @@
 
 namespace Bubo\Media\Components\Forms;
 
-// ??
 use BuboApp\AdminModule\Forms\BaseForm;
 
-abstract class AbstractLoadMediaForm
+abstract class AbstractLoadMediaForm extends BaseForm
 {
 
 	public function __construct($parent, $name)
