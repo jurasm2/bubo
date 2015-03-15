@@ -24,7 +24,7 @@ class PageMenuRenderer extends Nette\Object {
         $this->wrappers['innerLevel']['container'] = 'ul';
         $this->wrappers['innerLevelItem']['container'] = 'li';
 
-        $this->currentClassName = 'current';
+        $this->currentClassName = 'active';
 
         $this->onRenderMenuItem = callback($this, 'getMenuItem');
         
