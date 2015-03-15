@@ -11,11 +11,11 @@ use Nette\Security\IResource;
 
 
 /**
- * Abstraktní třída reprezentující stránku v CMS systému.
+ * Abstract class representing page in CMS system
  * @author Marek Juras
  */
-abstract class AbstractPage extends Control implements IResource {
-
+abstract class AbstractPage extends Control implements IResource
+{
 
     private $context;
 
@@ -60,15 +60,17 @@ abstract class AbstractPage extends Control implements IResource {
     /* temporary */
     private $connection;
 
-    public function __construct($context, $treeNodeId, $data = NULL, $entityName = 'page') {
+    public function __construct($context, $treeNodeId, $data = NULL, $entityName = 'page')
+    {
         parent::__construct();
 
         $this->context = $context;
         $this->entityName = $entityName;
         $this->treeNodeId = $treeNodeId;
 
-        $this->connection = $context->database;
+        $this->connection = $context->getService('database');
 
+	    // TODO WTF??
         $this->entityConfigFilePath = CONFIG_DIR . '/pages/entities/page.neon';
 
         $this->data = $data;
@@ -80,7 +82,8 @@ abstract class AbstractPage extends Control implements IResource {
     }
 
 
-    public function __call_or_get($name, $args, $matches) {
+    public function __call_or_get($name, $args, $matches)
+    {
         $filter = FALSE;
 
         $p = $this->lookup('Nette\\Application\\UI\\Presenter', FALSE);
@@ -88,15 +91,10 @@ abstract class AbstractPage extends Control implements IResource {
             $this->entityConfig = $this->presenter->configLoaderService->loadEntityConfig($this->data['entity']);
         }
 
-        // ?
-        $this->context->virtualDrive->setStorage('file');
-
         $nameWithoutPrefix = $matches[1];
 
-         if (Strings::endsWith($nameWithoutPrefix, '_f')) {
-
+        if (Strings::endsWith($nameWithoutPrefix, '_f')) {
              $nameWithoutPrefix = substr($nameWithoutPrefix, 0, strlen($nameWithoutPrefix) - 2);
-
              $filter = TRUE;
          }
 
@@ -138,7 +136,6 @@ abstract class AbstractPage extends Control implements IResource {
 
                  }
 
-                 //dump($retValue);
              } else {
                  // $this->data[$nameWithoutPrefix]) is not set ->
                  // try to seek among extensions
@@ -387,12 +384,8 @@ abstract class AbstractPage extends Control implements IResource {
      * @param type $allPageVersions
      * @return array
      */
-    private function _getPageIdsToDelete($timeZone, $status, $allPageVersions) {
-
-        Nette\Diagnostics\Debugger::$maxDepth = 6;
-
-        //dump($timeZone, $status, $allPageVersions);
-
+    private function _getPageIdsToDelete($timeZone, $status, $allPageVersions)
+    {
         $P = 'published';
         $D = 'draft';
         $T = 'trashed';
@@ -440,17 +433,14 @@ abstract class AbstractPage extends Control implements IResource {
                             break;
                      }
             }
-
-//            dump($pairs);
-//            die();
             $pageIds = $this->_extractPageIds($pairs, $currentLangPageVersions);
         }
 
         return $pageIds;
     }
 
-    private function _extractPageIds($pairs, $currentLangPageVersions) {
-
+    private function _extractPageIds($pairs, $currentLangPageVersions)
+    {
         $pageIds = array();
 
         foreach ($pairs as $pair) {
@@ -468,47 +458,6 @@ abstract class AbstractPage extends Control implements IResource {
 
         return $pageIds;
     }
-
-    private function _getPageIds($allPageVersions){
-        $pageIds = array();
-        foreach($allPageVersions as $lang=>$page){
-            foreach($page as $zones){
-                foreach($zones as $status => $versions){
-                    foreach($versions as $p){
-                        $pageIds[$p['page_id']] = $p;
-                    }
-                }
-            }
-        }
-        return $pageIds;
-    }
-
-    private function _convertPdfs($insertData, $queryBuilder, $presenter) {
-            $extValuesDbTable = $queryBuilder->getExtValuesDbTable();
-            $pdfs = array();
-            if (isset($insertData[$extValuesDbTable])) {
-//                dump($insertData[$extValuesDbTable]);
-//                die();
-                foreach ($insertData[$extValuesDbTable] as $ext) {
-                    if (Strings::startsWith($ext['identifier'], 'pdf_')) {
-                        // get replacement pattern
-                        $filter = new \Filters\CMSFilter();
-                        $pattern = $filter->getPattern('file');
-                        if (preg_match_all($pattern, $ext['value'], $matches)) {
-                            if (isset($matches[2]) && is_array($matches[2])) {
-                                foreach ($matches[2] as $pdfFileId) {
-                                    if ($pdfFileId)
-                                        $pdfs[$pdfFileId] = WWW_DIR . $presenter->virtualDriveService->getFilePath($pdfFileId);
-                                }
-                            }
-
-                        }
-                        $presenter->pdfConverterService->createThumbnails($pdfs);
-                    }
-                }
-            }
-    }
-
 
     /**
      *
@@ -558,14 +507,6 @@ abstract class AbstractPage extends Control implements IResource {
             $presenter->pageManagerService->onDelete($pageId, $pageIdsToDelete);
 
 
-            // what is happenin here??
-            // THIS WILL BE REMOVED WHEN FILES WILL BE INSERTED INTO tiny
-            if(!empty($pageIdsToDelete)){
-                $presenter->virtualDriveService->reconnectPages($pageId, max(array_keys($pageIdsToDelete)));
-            }else{
-                $allPageIds = $this->_getPageIds($allPageVersions);
-                $presenter->virtualDriveService->crateDuplicates($pageId, max(array_keys($allPageIds)));
-            }
             $presenter->pageModel->removeOldPages($pageIdsToDelete);
 
 
@@ -591,8 +532,6 @@ abstract class AbstractPage extends Control implements IResource {
             // if the page is an alien, the creation is different:
             // - for given language mutation - get all alien and create url
             //   with specified access_through data
-
-
 
             if ($allAlienUrls !== NULL && isset($allAlienUrls[$this->_lang])) {
                 // well the page is alien
@@ -713,7 +652,8 @@ abstract class AbstractPage extends Control implements IResource {
         return $this->data;
     }
 
-    public function getAttachedParent($presenter, $parentTreeNodeId) {
+    public function getAttachedParent($presenter, $parentTreeNodeId)
+    {
         $pageManager = $presenter->pageManagerService;
 
         if ($parentTreeNodeId === 0) {
@@ -738,45 +678,41 @@ abstract class AbstractPage extends Control implements IResource {
 
     }
 
-    /**
-     * Basic method for loading and attaching page's descendants
-     * ---------------------------------------------------------
-     *
-     * Descentant can be loaded in 3 ways.
-     * Loading method depends on provided arguments
-     * - $entityConfig: needed for FULL or CUSTOM loading
-     * - $group: specifying CUSTOM loading
-     *
-     * ==========================================
-     * | entityConfig | groupName ||    mode    |
-     * |==============|===========||============|
-     * |     NULL     |     -     ||  mandatory |
-     * |--------------|-----------||------------|
-     * |   NOT NULL   |    NULL   ||    full    |
-     * |              |  NOT NULL ||   custom   |
-     * ==========================================
-     *
-     *
-     * @param type $lang
-     * @param type $states
-     * @param type $labelId
-     * @param type $entityConfig
-     * @param type $group
-     * @param type $orderDirection
-     * @param type $limit
-     * @return type
-     */
-    public function getDescendants($params, $test = FALSE) {
+	/**
+	 * Basic method for loading and attaching page's descendants
+	 * ---------------------------------------------------------
+	 *
+	 * Descendants can be loaded in 3 ways.
+	 * Loading method depends on provided arguments
+	 * - $entityConfig: needed for FULL or CUSTOM loading
+	 * - $group: specifying CUSTOM loading
+	 *
+	 * ==========================================
+	 * | entityConfig | groupName ||    mode    |
+	 * |==============|===========||============|
+	 * |     NULL     |     -     ||  mandatory |
+	 * |--------------|-----------||------------|
+	 * |   NOT NULL   |    NULL   ||    full    |
+	 * |              |  NOT NULL ||   custom   |
+	 * ==========================================
+	 *
+	 *
+	 * @param array $params
+	 * @return type
+	 * @throws \Exception
+	 * @internal param bool $test
+	 */
+    public function getDescendants($params) {
         $allParams = array(
-                        'labelId'               =>  NULL,
-                        'entityConfig'          =>  NULL,
-                        'groupName'             =>  NULL,
-                        'orderDirection'        =>  NULL,
-                        'limit'                 =>  NULL,
-                        'sortingCallback'       =>  NULL,
-                        'filterCallback'        =>  NULL,
-                        'searchGhosts'          =>  FALSE,
-                        'module'                =>  $this->presenter->pageManagerService->getCurrentModule()
+            'labelId'               =>  NULL,
+            'entityConfig'          =>  NULL,
+            'groupName'             =>  NULL,
+            'orderDirection'        =>  NULL,
+            'limit'                 =>  NULL,
+            'sortingCallback'       =>  NULL,
+            'filterCallback'        =>  NULL,
+            'searchGhosts'          =>  FALSE,
+            'module'                =>  $this->presenter->pageManagerService->getCurrentModule()
         );
 
         $mergedParams = array_merge($allParams, $params);
@@ -867,9 +803,6 @@ abstract class AbstractPage extends Control implements IResource {
 
         //
         $desc = $this->_sort($descendants, $orderDirection, $sortingCallback);
-
-//        dump($desc);
-//        die();
 
         return $limit !== NULL ? array_slice($desc, 0, $limit) : $desc;
     }
@@ -1014,17 +947,14 @@ abstract class AbstractPage extends Control implements IResource {
         return $this->_avelancheTransform($text, NULL, $params);
     }
 
-    private function _avelancheTransform($text, $filterParams = NULL, $templateParams = NULL) {
-
-        //dump($filterParams);
-
+    private function _avelancheTransform($text, $filterParams = NULL, $templateParams = NULL)
+    {
         $_temp = $text;
-
         $hash = NULL;
         $oldHash = NULL;
-        for ($i = 1; $i <= 50; $i++) {
-            $template = new \Nette\Templating\Template;
-            //$template->setTranslator($this->presenter->context->translator);
+        for ($i = 1; $i <= 10; $i++) {
+	        $template = new Bubo\Templating\Template;
+            $template->setTranslator($this->presenter->context->getService('translation.default'));
             $template->setSource($_temp);
             $template->add('_presenter', $this->presenter);
             $template->add('_control', $this->presenter);
@@ -1036,13 +966,16 @@ abstract class AbstractPage extends Control implements IResource {
                 }
             }
 
+            // register CMS filter for expanding galleries and images into latte blocks
             $template->onPrepareFilters[] = function($template) use ($filterParams) {
                     $template->registerFilter(new Bubo\Filters\CMSFilter($filterParams));
             };
+
+	        // register latte engine to finish the job
             $template->onPrepareFilters[] = function($template) {
-                    $template->registerFilter(new \Nette\Latte\Engine);
+                    $template->registerFilter(new Nette\Latte\Engine);
             };
-            //$template->setCacheStorage(new \Nette\Caching\Storages\PhpFileStorage(TEMP_DIR.'/cache'));
+
             $_temp = $template->__toString();
 
             if (($hash = sha1($_temp)) == $oldHash) break;
@@ -1050,14 +983,11 @@ abstract class AbstractPage extends Control implements IResource {
         }
 
         return $_temp;
-
     }
 
     public function getFilteredContent() {
         $this->setContent($this->_avelancheTransform($this->_content));
-
         return $this;
-
     }
 
     public function getCacheID($prefix) {

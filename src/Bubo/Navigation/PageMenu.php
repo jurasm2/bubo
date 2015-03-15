@@ -8,7 +8,8 @@ use Bubo\Profiler\MenuProfiler\MenuProfiler;
 use Nette\Caching\Cache;
 use Nette\Utils\Html;
 
-abstract class PageMenu extends Control {
+abstract class PageMenu extends Control
+{
 
     private $renderer;
     private $labelName;
@@ -17,54 +18,66 @@ abstract class PageMenu extends Control {
     private $cacheTags;
     private $cachingEnabled;
 
-    public function __construct($parent, $name, $lang = NULL) {
+
+    public function __construct($parent, $name, $lang = NULL)
+    {
         parent::__construct($parent, $name);
         $this->lang = $lang;
         $this->renderer = new Rendering\PageMenuRenderer();
         $this->cachingEnabled = TRUE;
     }
 
-    public function createLabelTraverser() {
+    public function createLabelTraverser()
+    {
         return $this->presenter->traverserFactoryService->createLabelTraverser($this);
     }
 
-    public function setLabelName($labelName) {
+    public function setLabelName($labelName)
+    {
         $this->labelName = $labelName;
         return $this;
     }
 
-    public function addCacheTag($tag) {
+    public function addCacheTag($tag)
+    {
         $this->cacheTags[] = $tag;
         return $this;
     }
 
-    public function disableCaching() {
+    public function disableCaching()
+    {
         $this->cachingEnabled = FALSE;
     }
 
-    public function getLabelName() {
+    public function getLabelName()
+    {
         return $this->labelName;
     }
 
-    public function setLang($lang) {
+    public function setLang($lang)
+    {
         $this->lang = $lang;
     }
 
-    public function getLang() {
+    public function getLang()
+    {
         return $this->lang;
     }
 
     abstract public function getTraverser();
 
-    public function getRenderer() {
+    public function getRenderer()
+    {
         return $this->renderer;
     }
 
-    public function setUpRenderer($renderer) {
+    public function setUpRenderer($renderer)
+    {
         return $renderer;
     }
 
-    public function getParentPage() {
+    public function getParentPage()
+    {
         return $this->parentPage;
     }
 
@@ -73,7 +86,8 @@ abstract class PageMenu extends Control {
      * @param string|Html $html
      * @return string|Html
      */
-    public function decorate($html) {
+    public function decorate($html)
+    {
         return $html;
     }
 
@@ -112,7 +126,7 @@ abstract class PageMenu extends Control {
             }
         }
 
-        $cache = new \Nette\Caching\Cache($this->presenter->context->cacheStorage, 'Bubo.PageMenus');
+        $cache = new \Nette\Caching\Cache($this->presenter->context->getService('cacheStorage'), 'Bubo.PageMenus');
         $val = $cache->load($cacheKey);
 
         if (!$doCaching) {

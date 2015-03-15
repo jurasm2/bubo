@@ -19,8 +19,8 @@ class BaseModel extends Nette\Object {
 
     public function __construct($context) {
         $this->context = $context;
-        $this->connection = $context->database;
-        $this->modelLoader = $context->modelLoader;
+        $this->connection = $context->getService('database');
+        $this->modelLoader = $context->getService('modelLoader');
     }
 
     public function __call($methodName, $args) {
@@ -28,9 +28,9 @@ class BaseModel extends Nette\Object {
             if (class_exists('Model\\' . $mtch[1] . 'Model')) {
                 return $this->modelLoader->loadModel($mtch[1] . 'Model');
             }
-        } else {
-            return parent::__call($methodName, $args);
         }
+
+        return parent::__call($methodName, $args);
     }
     
     public function createSelectData($dbData, $valueItem) {
@@ -45,8 +45,7 @@ class BaseModel extends Nette\Object {
             } else {
                 $selectData[$index] = $dbDataItem[$valueItem];
             }
-            
-            
+
         }
         return $selectData;
     }

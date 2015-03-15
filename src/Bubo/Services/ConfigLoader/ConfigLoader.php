@@ -1,48 +1,84 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 namespace Bubo\Services;
 
-use Nette, Bubo, Nette\Caching\Cache;
+use Bubo;
+use Nette;
+use Nette\Caching\Cache;
+use Nette\FileNotFoundException;
 
-class ConfigLoader extends BaseService {
-
+/**
+ * Class ConfigLoader
+ * @package Bubo\Services
+ */
+class ConfigLoader extends BaseService
+{
     const CACHE_NAMESPACE = 'Bubo.ConfigLoader';
 
-    private $context;
+	/**
+	 * @var string
+	 */
+	protected $projectDir;
 
-    public function __construct($context) {
-        $this->context = $context;
+	/**
+	 * @var Nette\DI\Config\Adapters\NeonAdapter
+	 */
+	protected $loader;
+
+	/**
+	 * @var Nette\Caching\IStorage
+	 */
+	protected $cacheStorage;
+
+	/**
+	 * Constructor
+	 * @param string $projectDir
+	 */
+    public function __construct(Nette\Caching\IStorage $cacheStorage, $projectDir)
+    {
+	    $this->cacheStorage = $cacheStorage;
+		$this->projectDir = $projectDir;
+
+	    $this->loader = new Nette\DI\Config\Adapters\NeonAdapter();
     }
 
-    public function load($configFile) {
-        $loader = new Nette\Config\Loader;
-        return $loader->load($configFile);
+	/**
+	 * Returns parsed neon file
+	 * @param string $configFile
+	 * @return array
+	 */
+    public function load($configFile)
+    {
+        return $this->loader->load($configFile);
     }
 
-    public function loadEntityConfig($entity, $mergeWithLabelExtensions = TRUE) {
-
+	/**
+	 * Loads entity configuration
+	 * @param string $entity
+	 * @param bool $mergeWithLabelExtensions
+	 * @return array|mixed|NULL
+	 */
+    public function loadEntityConfig($entity, $mergeWithLabelExtensions = TRUE)
+    {
         $cacheKey = $entity;
-        $cache = new Cache($this->context->cacheStorage, self::CACHE_NAMESPACE);
+        $cache = new Cache($this->cacheStorage, self::CACHE_NAMESPACE);
         $val = $cache->load($cacheKey);
 
         if ($val === NULL) {
 
-            $params = $this->context->getParameters();
-            $configFile = $params['projectDir'] . '/config/entities/'.$entity.'.neon';
+	        // get config file of given project (module)
+            $configFile = $this->projectDir . '/config/entities/'.$entity.'.neon';
 
             if (!is_file($configFile)) {
-                throw new \Nette\FileNotFoundException("Entity config file '$configFile' was not found");
+                throw new FileNotFoundException("Entity config file '$configFile' was not found");
             }
 
-            $loader = new Nette\Config\Loader;
-            $entityConfig = $loader->load($configFile);
+            $entityConfig = $this->loader->load($configFile);
 
             if ($mergeWithLabelExtensions) {
+	            // what the hell???
                 $labelProperties = $this->loadLabelExtentsionProperties();
+
 
                 array_walk($entityConfig['properties'], function(&$item) use ($labelProperties) {
                     // if entity params contains reference to ext, expand it
@@ -60,7 +96,7 @@ class ConfigLoader extends BaseService {
                     Cache::FILES => array(
                                         $configFile,
                                         CONFIG_DIR . '/labels/labelExtensions.neon',
-                                        $params['projectDir'] . '/config/labels/labelExtensions.neon'
+                                        $this->projectDir . '/config/labels/labelExtensions.neon'
                     )
             );
 
@@ -74,21 +110,17 @@ class ConfigLoader extends BaseService {
 
     public function loadMandatoryProperties() {
         $configFile = CONFIG_DIR . '/pages/mandatory.neon';
-        $loader = new Nette\Config\Loader;
-        return $loader->load($configFile);
+        return $this->loader->load($configFile);
     }
 
     public function loadLabelExtentsionProperties() {
-        $params = $this->context->getParameters();
-        $loader = new Nette\Config\Loader;
-
         $commonConfigFile = CONFIG_DIR . '/labels/labelExtensions.neon';
-        $projectConfigFile = $params['projectDir'] . '/config/labels/labelExtensions.neon';
+        $projectConfigFile = $this->projectDir . '/config/labels/labelExtensions.neon';
 
-        $config = $loader->load($commonConfigFile);
+        $config = $this->loader->load($commonConfigFile);
 
         if (is_file($projectConfigFile)) {
-            $projectConfig = $loader->load($projectConfigFile);
+            $projectConfig = $this->loader->load($projectConfigFile);
             $config = \Nette\Utils\Arrays::mergeTree($projectConfig, $config);
         }
 
@@ -100,8 +132,7 @@ class ConfigLoader extends BaseService {
 
     public function loadLayoutConfig() {
         $configFile = CONFIG_DIR . '/layouts/layouts.neon';
-        $loader = new Nette\Config\Loader;
-        return  $loader->load($configFile);
+        return  $this->loader->load($configFile);
     }
 
     private function _findAllNamespacedModules($allModules, $namespace) {
@@ -120,10 +151,8 @@ class ConfigLoader extends BaseService {
     }
 
     public function loadEntities($createUrl = TRUE) {
-        $params = $this->context->getParameters();
-        $entityConfigDir = $params['projectDir'] . '/config/entities';
-
-        $loader = new Nette\Config\Loader;
+	    // project DIR
+        $entityConfigDir = $this->projectDir . '/config/entities';
 
         $entities = array();
 
@@ -131,7 +160,7 @@ class ConfigLoader extends BaseService {
             foreach (\Nette\Utils\Finder::findFiles('*.neon')
                     ->in($entityConfigDir) as $key => $file) {
 
-                        $load = $loader->load($key);
+                        $load = $this->loader->load($key);
 
                         if (!isset($load['entityMeta'])) {
                             throw new Nette\InvalidStateException("Section 'entityMeta' is missing in entity config file '$key'");
@@ -157,15 +186,10 @@ class ConfigLoader extends BaseService {
         return $entities;
     }
 
-    public function loadModulesConfig($currentModule = NULL) {
-        $params = $this->context->getParameters();
-
-        $configFile = $params['projectDir'] . '/config/project.neon';
-        $loader = new Nette\Config\Loader;
-        $load = $loader->load($configFile);
-
-//        dump($load);
-//        die();
+    public function loadModulesConfig($currentModule = NULL)
+    {
+        $configFile = $this->projectDir . '/config/project.neon';
+        $load = $this->loader->load($configFile);
 
         if ($currentModule !== NULL) {
 

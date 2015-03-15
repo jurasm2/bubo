@@ -2,6 +2,7 @@
 
 namespace Bubo\ExtEngines;
 
+use Bubo;
 use Nette\Utils\Strings;
 
 /**
@@ -52,7 +53,7 @@ class DefaultExtEngine extends BaseExtEngine {
                     $retValue = $_d['ext_identifier'][$realName]['ext_value'];
 
                     if (Strings::startsWith($realName, 'pdf_') && $args !== NULL) {
-                        $filter = new \Filters\CMSFilter();
+                        $filter = new Bubo\Filters\CMSFilter();
                         $pattern = $filter->getPattern('file');
                         if (preg_match_all($pattern, $_d['ext_identifier'][$realName]['ext_value'], $matches)) {
                             if (isset($matches[2]) && is_array($matches[2])) {

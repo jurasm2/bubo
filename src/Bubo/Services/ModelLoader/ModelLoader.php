@@ -11,7 +11,7 @@ class ModelLoader extends BaseService {
 
         public function __construct($context) {
                 $this->context = $context;
-                $this->connection = $context->database;
+                $this->connection = $context->getService('database');
         }
 
         public function loadModel($modelName, $modelNamespace = 'Model') {
